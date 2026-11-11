@@ -15,7 +15,8 @@ public static class AdmissionEndpoints
     public static void MapAdmissionEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/admissions")
-            .WithTags("Admissions");
+            .WithTags("Admissions")
+            .RequireAuthorization();
 
         group.MapPost("/", Create)
             .WithName("CreateAdmission")
@@ -28,6 +29,8 @@ public static class AdmissionEndpoints
         group.MapGet("/", GetAll)
             .WithName("GetAllAdmissions")
             .WithSummary("Get all admissions");
+
+
     }
 
     private static async Task<IResult> Create(

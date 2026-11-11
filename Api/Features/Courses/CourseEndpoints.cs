@@ -49,10 +49,11 @@ public static class CourseEndpoints
     {
 
         var group = app.MapGroup("/api/courses")
-            .WithTags("Courses");
+            .WithTags("Courses")
+            .RequireAuthorization();
 
         //inserted lab04
-         group.MapPut("/{id:guid}", Update)
+        group.MapPut("/{id:guid}", Update)
         .WithName("UpdateCourse")
         .WithSummary("Update an existing course");
 

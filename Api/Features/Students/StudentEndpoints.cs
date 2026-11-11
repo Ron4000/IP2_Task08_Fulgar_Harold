@@ -13,7 +13,8 @@ public static class StudentEndpoints
     public static void MapStudentEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/students")
-            .WithTags("Students");
+            .WithTags("Students")
+       .RequireAuthorization(); // Requires a valid JWT token for all student routes
 
         group.MapGet("/", GetAll)
             .WithName("GetAllStudents")
