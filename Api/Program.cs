@@ -21,6 +21,9 @@ using Scalar.AspNetCore;
 using Application.Features.Courses.UpdateCourse;
 //inserted lab05
 using Application.Features.Courses.DeleteCourse;
+//inserted lab08
+using Application.Abstractions;
+using Infrastructure.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +51,10 @@ builder.Services.AddScoped<IQueryHandler<GetAdmissionByIdQuery, Result<GetAdmiss
 //inserted lab04
 builder.Services.AddScoped<ICommandHandler<UpdateCourseCommand, Result<UpdateCourseResponse>>, UpdateCourseCommandHandler>();
 
+//inserted labo8
+builder.Services.AddScoped<IPasswordHasher, Infrastructure.Authentication.PasswordHasher>();
+
+
 // API
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi(options =>
@@ -61,56 +68,8 @@ builder.Services.AddOpenApi(options =>
 });
 
 var app = builder.Build();
+await app.Services.MigrateAndSeedAsync();
 
-// Seed data
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Students.AddRange(
-        new Domain.Entities.Student
-        {
-            Id = Guid.NewGuid(),
-            FirstName = "John",
-            LastName = "Doe",
-            Email = "john.doe@example.com",
-            DateOfBirth = new DateTime(2000, 1, 15)
-        },
-        new Domain.Entities.Student
-        {
-            Id = Guid.NewGuid(),
-            FirstName = "Jane",
-            LastName = "Smith",
-            Email = "jane.smith@example.com",
-            DateOfBirth = new DateTime(2001, 5, 20)
-        }
-    );
-
-    dbContext.Courses.AddRange(
-        new Domain.Entities.Course
-        {
-            Id = Guid.NewGuid(),
-            Title = "Introduction to Programming",
-            Code = "CS101",
-            Credits = 3
-        },
-        new Domain.Entities.Course
-        {
-            Id = Guid.NewGuid(),
-            Title = "Data Structures",
-            Code = "CS201",
-            Credits = 4
-        },
-        new Domain.Entities.Course
-        {
-            Id = Guid.NewGuid(),
-            Title = "Database Systems",
-            Code = "CS301",
-            Credits = 3
-        }
-    );
-
-    dbContext.SaveChanges();
-}
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
