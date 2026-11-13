@@ -1,5 +1,6 @@
 namespace Api.Features.Students;
 
+using Api.Common.Authorization;
 using Api.Common.Extensions;
 using Application.Abstractions.Messaging;
 using Application.Features.Students.CreateStudent;
@@ -10,23 +11,26 @@ using Domain.Common;
 public static class StudentEndpoints
 {
     private const string GetByIdRouteName = "GetStudentById";
+
     public static void MapStudentEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/students")
-            .WithTags("Students")
-       .RequireAuthorization(); // Requires a valid JWT token for all student routes
+            .WithTags("Students");
 
         group.MapGet("/", GetAll)
             .WithName("GetAllStudents")
-            .WithSummary("Get all students");
-
-        group.MapPost("/", Create)
-            .WithName("CreateStudent")
-            .WithSummary("Create a new student");
+            .WithSummary("Get all students")
+            .RequireAuthorization(Policies.CanManageStudents);
 
         group.MapGet("/{id:guid}", GetById)
             .WithName(GetByIdRouteName)
-            .WithSummary("Get student by ID");
+            .WithSummary("Get student by ID")
+            .RequireAuthorization(Policies.CanManageStudents);
+
+        group.MapPost("/", Create)
+            .WithName("CreateStudent")
+            .WithSummary("Create a new student")
+            .RequireAuthorization(Policies.CanManageStudents);
     }
 
     private static async Task<IResult> GetAll(

@@ -1,3 +1,6 @@
+namespace Api.Features.Admissions;
+
+using Api.Common.Authorization;
 using Api.Common.Extensions;
 using Application.Abstractions.Messaging;
 using Application.Features.Admissions.CreateAdmission;
@@ -6,31 +9,29 @@ using Application.Features.Admissions.GetAllAdmissions;
 using Domain.Common;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Features.Admissions;
-
 public static class AdmissionEndpoints
 {
-    //added on lab05
     private const string GetByIdRouteName = "GetAdmissionById";
+
     public static void MapAdmissionEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/admissions")
-            .WithTags("Admissions")
-            .RequireAuthorization();
+            .WithTags("Admissions");
 
         group.MapPost("/", Create)
             .WithName("CreateAdmission")
-            .WithSummary("Create a new admission with courses");
-
-        group.MapGet("/{id:guid}", GetById)
-            .WithName(GetByIdRouteName)
-            .WithSummary("Get admission by ID with courses");
+            .WithSummary("Create a new admission with courses")
+            .RequireAuthorization(Policies.CanManageAdmissions);
 
         group.MapGet("/", GetAll)
             .WithName("GetAllAdmissions")
-            .WithSummary("Get all admissions");
+            .WithSummary("Get all admissions")
+            .RequireAuthorization(Policies.CanManageAdmissions);
 
-
+        group.MapGet("/{id:guid}", GetById)
+            .WithName(GetByIdRouteName)
+            .WithSummary("Get admission by ID with courses")
+            .RequireAuthorization();
     }
 
     private static async Task<IResult> Create(
